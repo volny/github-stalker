@@ -1,3 +1,2 @@
-const verifyToken = 'WfUnydgxxMXgdExnADGepigdbxqsdVBzjnu'
-
-module.exports.verifyToken = verifyToken
+module.exports.verifyToken = ''
+module.exports.pageAccessToken = ''

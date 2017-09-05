@@ -1,4 +1,5 @@
 const { verifyToken } = require('./secrets')
+const { receivedMessage } = require('./messaging')
 
 /**
  * HTTP Cloud Function.
@@ -21,10 +22,7 @@ const verify = (req, res) => {
  * @param {Object} res Cloud Function response context.
  */
 const echo = (req, res) => {
-  const handleMessaging = (req, res) => {
-    const receivedMessage = (event) => {
-      console.log('Message data:', event.message)
-    }
+  const handlePOST = (req, res) => {
     const data = req.body
     if (data.object === 'page') {
       // fb might batch entries and send multiple
@@ -47,7 +45,7 @@ const echo = (req, res) => {
 
   switch (req.method) {
     case 'POST':
-      handleMessaging(req, res)
+      handlePOST(req, res)
       break
     default:
       res.status(500).send({ error: 'Something blew up!' })
