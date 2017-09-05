@@ -1,3 +1,5 @@
+const { verifyToken } = require('./secrets')
+
 /**
  * HTTP Cloud Function.
  *
@@ -5,13 +7,19 @@
  * @param {Object} res Cloud Function response context.
  */
 const verify = (req, res) => {
-  if (req.query['hub.verify_token'] === 'WfUnydgxxMXgdExnADGepigdbxqsdVBzjnu') {
+  if (req.query['hub.verify_token'] === verifyToken) {
     res.send(req.query['hub.challenge'])
   } else {
     res.send('Error, wrong validation token')
   }
 }
 
+/**
+ * HTTP Cloud Function.
+ *
+ * @param {Object} req Cloud Function request context.
+ * @param {Object} res Cloud Function response context.
+ */
 const echo = (req, res) => {
   const handleMessaging = (req, res) => {
     const receivedMessage = (event) => {
@@ -23,7 +31,7 @@ const echo = (req, res) => {
       data.entry.forEach((entry) => {
         const pageID = entry.id
         const timeOfEvent = entry.time
-        console.log(`New Event: ${entry.id} at ${entry.time}`)
+        console.log(`New Event: ${pageID} at ${timeOfEvent}`)
         // iterate over each messaging event
         entry.messaging.forEach((event) => {
           if (event.message) {
