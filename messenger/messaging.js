@@ -91,7 +91,7 @@ const receivedMessage = (event) => {
   console.log('Received message for user %d and page %d at %d with message:', senderID, recipientID, timeOfMessage)
   console.log(JSON.stringify(message))
 
-  const messageId = message.mid
+  const messageID = message.mid
   const messageText = message.text
   const messageAttachments = message.attachments
 
@@ -108,4 +108,17 @@ const receivedMessage = (event) => {
   }
 }
 
+const receivedPostback = (event) => {
+  const senderID = event.sender.id
+  const recipientID = event.recipient.id
+  const timeOfPostback = event.timestamp
+
+  var payload = event.postback.payload
+
+  console.log('Received postback for user %d and page %d with payload \'%s\'' + 'at %d', senderID, recipientID, payload, timeOfPostback)
+
+  sendTextMessage(senderID, 'Postback called')
+}
+
 module.exports.receivedMessage = receivedMessage
+module.exports.receivedPostback = receivedPostback

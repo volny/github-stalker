@@ -1,5 +1,5 @@
 const { verifyToken } = require('./secrets')
-const { receivedMessage } = require('./messaging')
+const { receivedMessage, receivedPostback } = require('./messaging')
 
 /**
  * HTTP Cloud Function.
@@ -34,6 +34,8 @@ const echo = (req, res) => {
         entry.messaging.forEach((event) => {
           if (event.message) {
             receivedMessage(event)
+          } else if (event.postback) {
+            receivedPostback(event)
           } else {
             console.log('Webhook received unknown event:', event)
           }
