@@ -1,5 +1,5 @@
 const request = require('request-promise-native')
-const { pageAccessToken, verifyToken } = require('./secrets')
+const { pageAccessToken, verifyToken } = require('../secrets')
 const { echo } = require('./messaging')
 
 const callSendAPI = (messageData) => {
