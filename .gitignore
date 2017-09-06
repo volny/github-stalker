@@ -1,4 +1,2 @@
-github/node_modules/
-
-messenger/node_modules/
-messenger/secrets.js
+node_modules/
+secrets.js
