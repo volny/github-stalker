@@ -10,16 +10,14 @@ const callSendAPI = (messageData) => {
     json: messageData,
     resolveWithFullResponse: true
   })
-    .then((response) => {
-      if (response.statusCode === 200) {
+    .then(({ statusCode, body }) => {
+      if (statusCode === 200) {
         console.log('Successfully sent message with id %s to recipient %s',
-          response.body.message_id, response.body.recipient_id)
+          body.message_id, body.recipient_id)
       }
     })
-    .catch((error, response) => {
-      console.error('Unable to send message.')
-      console.error(response)
-      console.error(error)
+    .catch((error) => {
+      console.error('Unable to send message.', error)
     })
 }
 
@@ -34,13 +32,14 @@ const sendMessage = (recipientID, message) => {
 }
 
 const handleEvent = (func, event) => {
-  if (event.postback) {
+  const { postback, sender, recipient, timestamp, message } = event
+  if (postback) {
     console.log('Received postback for user %d and page %d with payload \'%s\'' + 'at %d',
-      event.sender.id, event.recipient.id, event.postback.payload, event.timestamp)
-  } else if (event.message) {
+      sender.id, recipient.id, postback.payload, timestamp)
+  } else if (message) {
     console.log('Received message for user %d and page %d at %d with message:',
-      event.sender.id, event.recipient.id, event.timestamp)
-    console.log(JSON.stringify(event.message))
+      sender.id, recipient.id, timestamp)
+    console.log(JSON.stringify(message))
   } else {
     console.log('Webhook received unknown event:', event)
     // in case of unknown event we're aborting early
@@ -49,44 +48,49 @@ const handleEvent = (func, event) => {
 
   // actual bot code goes here ...
   const responseMessage = func.call(this, event)
-  sendMessage(event.sender.id, responseMessage)
+  sendMessage(sender.id, responseMessage)
 }
 
 const decorator = (func) => {
   const decorated = (req, res) => {
+    const { method } = req
+    const { status } = res
     const handlePOST = (req, res) => {
-      const data = req.body
-      if (data.object === 'page') {
+      const { body } = req
+      const { sendStatus } = res
+      const { object, entry } = body
+      if (object === 'page') {
         // fb might batch entries and send multiple
-        data.entry.forEach((entry) => {
-          console.log(`New Event: ${entry.id} at ${entry.time}`)
-          entry.messaging.forEach((event) => {
+        entry.forEach((subentry) => {
+          const { id, time, messaging } = subentry
+          console.log(`New Event: ${id} at ${time}`)
+          messaging.forEach((event) => {
             handleEvent(func, event)
           })
         })
       }
 
       // must respons with 200 or FB will resend request
-      res.sendStatus(200)
+      sendStatus(200)
     }
 
-    switch (req.method) {
+    switch (method) {
       case 'POST':
         handlePOST(req, res)
         break
       default:
-        res.status(500).send({ error: 'Only POST allowed' })
+        status(500).send({ error: 'Only POST allowed' })
         break
     }
   }
   return decorated
 }
 
-const verify = (req, res) => {
-  if (req.query['hub.verify_token'] === verifyToken) {
-    res.send(req.query['hub.challenge'])
+const verify = ({ query }, { send }) => {
+  if (query['hub.verify_token'] === verifyToken) {
+    send(query['hub.challenge'])
   } else {
-    res.send('Error, wrong validation token')
+    send('Error, wrong validation token')
   }
 }
 

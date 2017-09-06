@@ -1,5 +1,4 @@
 // In this file we're writing our actual Messenger Bot
-// Takes in an event and returns response
 
 const genericMessage = {
   attachment: {
@@ -39,17 +38,18 @@ const genericMessage = {
   }
 }
 
-const echo = (event) => {
-  if (event.postback) {
+// Takes in a user event and returns response message
+const echo = ({ postback, message }) => {
+  if (postback) {
     return { text: 'postback call 😱' }
-  } else if (event.message.text) {
-    switch (event.message.text) {
+  } else if (message.text) {
+    switch (message.text) {
       case 'generic':
         return genericMessage
       default:
-        return { text: event.message.text }
+        return { text: message.text }
     }
-  } else if (event.message.attachments) {
+  } else if (message.attachments) {
     return { text: 'Don\'t know what to do with message with attachment' }
   }
 }
