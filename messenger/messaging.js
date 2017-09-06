@@ -1,23 +1,4 @@
-// TODO in the end we probably don't want to reply with a string, but with
-// [data, action], e.g. ['hello', sendMessage]
-// similar to postback, etc
-
-
 // In this file we're writing our actual Messenger Bot
-
-// the reason for all the boilerplate in `index.js` is so here we can write
-// a simple and pure function about what our bot actually does
-const echo = (event) => {
-  const message = event.message
-  const messageText = message.text
-  const messageAttachments = message.attachments
-
-  if (messageText) {
-    return { text: messageText }
-  } else if (messageAttachments) {
-    return { text: 'Don\'t know what to do with message with attachment' }
-  }
-}
 
 const genericMessage = {
   attachment: {
@@ -57,33 +38,19 @@ const genericMessage = {
   }
 }
 
-const echoOrGeneric = (event) => {
-  const message = event.message
-  const messageText = message.text
-  const messageAttachments = message.attachments
-
-  if (messageText) {
-    switch (messageText) {
+const echo = (event) => {
+  if (event.postback) {
+    return { text: 'postback call 😱' }
+  } else if (event.message.text) {
+    switch (event.message.text) {
       case 'generic':
         return genericMessage
       default:
-        return { text: messageText }
+        return { text: event.message.text }
     }
-  } else if (messageAttachments) {
+  } else if (event.message.attachments) {
     return { text: 'Don\'t know what to do with message with attachment' }
   }
 }
 
-// const receivedPostback = (event) => {
-//   const senderID = event.sender.id
-//   const recipientID = event.recipient.id
-//   const timeOfPostback = event.timestamp
-//
-//   var payload = event.postback.payload
-//
-//   console.log('Received postback for user %d and page %d with payload \'%s\'' + 'at %d', senderID, recipientID, payload, timeOfPostback)
-//
-//   sendTextMessage(senderID, 'Postback called')
-// }
-
-module.exports.echo = echoOrGeneric
+module.exports.echo = echo

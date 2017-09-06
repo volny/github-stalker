@@ -34,14 +34,22 @@ const sendMessage = (recipientID, message) => {
   callSendAPI(messageData)
 }
 
-const receivedMessage = (func, event) => {
+const handleEvent = (func, event) => {
   const senderID = event.sender.id
   const recipientID = event.recipient.id
-  const timeOfMessage = event.timestamp
-  const message = event.message
+  const timestamp = event.timestamp
 
-  console.log('Received message for user %d and page %d at %d with message:', senderID, recipientID, timeOfMessage)
-  console.log(JSON.stringify(message))
+  if (event.postback) {
+    const payload = event.postback.payload
+    console.log('Received postback for user %d and page %d with payload \'%s\'' + 'at %d', senderID, recipientID, payload, timestamp)
+  } else if (event.message) {
+    console.log('Received message for user %d and page %d at %d with message:', senderID, recipientID, timestamp)
+    console.log(JSON.stringify(event.message))
+  } else {
+    console.log('Webhook received unknown event:', event)
+    // in case of unknown event we're aborting early
+    return
+  }
 
   // actual bot code goes here ...
   const messageToSend = func.apply(this, [event])
@@ -59,15 +67,7 @@ const decorator = (func) => {
           const timeOfEvent = entry.time
           console.log(`New Event: ${pageID} at ${timeOfEvent}`) // iterate over each messaging event
           entry.messaging.forEach((event) => {
-            if (event.message) {
-              receivedMessage(func, event)
-            }
-            // else if (event.postback) {
-            //   receivedPostback(event)
-            // }
-            else {
-              console.log('Webhook received unknown event:', event)
-            }
+            handleEvent(func, event)
           })
         })
       }
