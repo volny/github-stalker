@@ -12,9 +12,8 @@ const callSendAPI = (messageData) => {
   })
     .then((response) => {
       if (response.statusCode === 200) {
-        const recipientID = response.body.recipient_id
-        const messageID = response.body.message_id
-        console.log('Successfully sent message with id %s to recipient %s', messageID, recipientID)
+        console.log('Successfully sent message with id %s to recipient %s',
+          response.body.message_id, response.body.recipient_id)
       }
     })
     .catch((error, response) => {
@@ -29,21 +28,18 @@ const sendMessage = (recipientID, message) => {
     recipient: {
       id: recipientID
     },
-    message: message
+    message
   }
   callSendAPI(messageData)
 }
 
 const handleEvent = (func, event) => {
-  const senderID = event.sender.id
-  const recipientID = event.recipient.id
-  const timestamp = event.timestamp
-
   if (event.postback) {
-    const payload = event.postback.payload
-    console.log('Received postback for user %d and page %d with payload \'%s\'' + 'at %d', senderID, recipientID, payload, timestamp)
+    console.log('Received postback for user %d and page %d with payload \'%s\'' + 'at %d',
+      event.sender.id, event.recipient.id, event.postback.payload, event.timestamp)
   } else if (event.message) {
-    console.log('Received message for user %d and page %d at %d with message:', senderID, recipientID, timestamp)
+    console.log('Received message for user %d and page %d at %d with message:',
+      event.sender.id, event.recipient.id, event.timestamp)
     console.log(JSON.stringify(event.message))
   } else {
     console.log('Webhook received unknown event:', event)
@@ -52,8 +48,8 @@ const handleEvent = (func, event) => {
   }
 
   // actual bot code goes here ...
-  const messageToSend = func.apply(this, [event])
-  sendMessage(senderID, messageToSend)
+  const responseMessage = func.call(this, event)
+  sendMessage(event.sender.id, responseMessage)
 }
 
 const decorator = (func) => {
@@ -63,9 +59,7 @@ const decorator = (func) => {
       if (data.object === 'page') {
         // fb might batch entries and send multiple
         data.entry.forEach((entry) => {
-          const pageID = entry.id
-          const timeOfEvent = entry.time
-          console.log(`New Event: ${pageID} at ${timeOfEvent}`) // iterate over each messaging event
+          console.log(`New Event: ${entry.id} at ${entry.time}`)
           entry.messaging.forEach((event) => {
             handleEvent(func, event)
           })
@@ -81,7 +75,7 @@ const decorator = (func) => {
         handlePOST(req, res)
         break
       default:
-        res.status(500).send({ error: 'Something blew up!' })
+        res.status(500).send({ error: 'Only POST allowed' })
         break
     }
   }

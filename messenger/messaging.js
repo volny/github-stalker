@@ -1,4 +1,5 @@
 // In this file we're writing our actual Messenger Bot
+// Takes in an event and returns response
 
 const genericMessage = {
   attachment: {
