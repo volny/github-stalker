@@ -1,5 +1,5 @@
 const echo = (event) => {
-  const senderID = event.sender.id
+  // const senderID = event.sender.id
   const message = event.message
   const messageText = message.text
   const messageAttachments = message.attachments
@@ -14,12 +14,14 @@ const echo = (event) => {
 
         // sendTextMessage(senderID, messageText)
 
-        return [senderID, messageText]
+        // return [senderID, messageText]
+        return messageText
 
     // }
   } else if (messageAttachments) {
     // sendTextMessage(senderID, 'Message with attachment received')
-    return [senderID, 'Don\'t know what to do with message with attachment']
+    // return [senderID, 'Don\'t know what to do with message with attachment']
+    return 'Don\'t know what to do with message with attachment'
   }
 }
 

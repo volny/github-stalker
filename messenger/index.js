@@ -2,14 +2,6 @@ const request = require('request-promise-native')
 const { pageAccessToken, verifyToken } = require('./secrets')
 const { echo } = require('./messaging')
 
-const verify = (req, res) => {
-  if (req.query['hub.verify_token'] === verifyToken) {
-    res.send(req.query['hub.challenge'])
-  } else {
-    res.send('Error, wrong validation token')
-  }
-}
-
 const callSendAPI = (messageData) => {
   request({
     uri: 'https://graph.facebook.com/v2.6/me/messages',
@@ -53,25 +45,9 @@ const receivedMessage = (func, event) => {
   console.log('Received message for user %d and page %d at %d with message:', senderID, recipientID, timeOfMessage)
   console.log(JSON.stringify(message))
 
-  const messageText = message.text
-  const messageAttachments = message.attachments
-
+  // actual bot code goes here ...
   const messageToSend = func.apply(this, [event])
-  sendTextMessage(...messageToSend)
-
-  // start actual echo code
-  // if (messageText) {
-  //   switch (messageText) {
-  //     case 'generic':
-  //       sendGenericMessage(senderID)
-  //       break
-  //     default:
-  //       sendTextMessage(senderID, messageText)
-  //   }
-  // } else if (messageAttachments) {
-  //   sendTextMessage(senderID, 'Message with attachment received')
-  // }
-  // end actual echo code
+  sendTextMessage(senderID, messageToSend)
 }
 
 const decorator = (func) => {
@@ -112,6 +88,14 @@ const decorator = (func) => {
     }
   }
   return decorated
+}
+
+const verify = (req, res) => {
+  if (req.query['hub.verify_token'] === verifyToken) {
+    res.send(req.query['hub.challenge'])
+  } else {
+    res.send('Error, wrong validation token')
+  }
 }
 
 exports.echo = decorator(echo)
