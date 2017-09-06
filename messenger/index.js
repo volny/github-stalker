@@ -24,14 +24,12 @@ const callSendAPI = (messageData) => {
     })
 }
 
-const sendTextMessage = (recipientID, messageText) => {
+const sendMessage = (recipientID, message) => {
   const messageData = {
     recipient: {
       id: recipientID
     },
-    message: {
-      text: messageText
-    }
+    message: message
   }
   callSendAPI(messageData)
 }
@@ -47,7 +45,7 @@ const receivedMessage = (func, event) => {
 
   // actual bot code goes here ...
   const messageToSend = func.apply(this, [event])
-  sendTextMessage(senderID, messageToSend)
+  sendMessage(senderID, messageToSend)
 }
 
 const decorator = (func) => {
