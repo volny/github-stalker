@@ -53,11 +53,8 @@ const handleEvent = (func, event) => {
 
 const decorator = (func) => {
   const decorated = (req, res) => {
-    const { method } = req
-    const { status } = res
     const handlePOST = (req, res) => {
       const { body } = req
-      const { sendStatus } = res
       const { object, entry } = body
       if (object === 'page') {
         // fb might batch entries and send multiple
@@ -71,15 +68,15 @@ const decorator = (func) => {
       }
 
       // must respons with 200 or FB will resend request
-      sendStatus(200)
+      res.sendStatus(200)
     }
 
-    switch (method) {
+    switch (req.method) {
       case 'POST':
         handlePOST(req, res)
         break
       default:
-        status(500).send({ error: 'Only POST allowed' })
+        res.status(500).send({ error: 'Only POST allowed' })
         break
     }
   }

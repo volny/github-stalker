@@ -17,5 +17,9 @@
   "bugs": {
     "url": "https://github.com/volny/Github-Trending-Bot/issues"
   },
-  "homepage": "https://github.com/volny/Github-Trending-Bot#readme"
+  "homepage": "https://github.com/volny/Github-Trending-Bot#readme",
+  "dependencies": {
+    "request": "^2.81.0",
+    "request-promise-native": "^1.0.4"
+  }
 }
