@@ -17,7 +17,7 @@ const avatarMessage = (username, { name, avatarUrl }) => {
       payload: {
         template_type: 'generic',
         elements: [{
-          title: name ? name : username,
+          title: name || username,
           item_url: `https://github.com/${username}`,
           image_url: avatarUrl,
           buttons: [{
@@ -46,9 +46,8 @@ const showAvatar = ({ message }) => {
         .then((data) => {
           console.log('got github data')
           if (Object.keys(data).length > 0) {
-            console.log('data not empty - preparing response')
-            const response = avatarMessage(username, data)
-            return response
+            console.log('data not empty, sending response')
+            return avatarMessage(username, data)
           } else {
             return { text: 'Sorry, seems like that user doesn\'t exist' }
           }
