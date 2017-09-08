@@ -62,7 +62,7 @@ const showAvatar = ({ message }) => {
       return { text: 'Sorry, that doesn\'t look like a valid Github username. Please try again' }
     }
   } else if (message.attachments) {
-    return { text: 'I\'m scared by attachments 😱 ' }
+    return { text: 'I\'m scared of attachment 😱' }
   }
 }
 
