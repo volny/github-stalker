@@ -1,9 +1,20 @@
 const request = require('request-promise-native')
 
-const { pageAccessToken } = require('../secrets')
+const { verifyToken, pageAccessToken } = require('../secrets')
 const { echo } = require('./bots/echoBot')
 const { avatar } = require('./bots/avatarBot')
 const { stalker } = require('./bots/stalkerBot')
+
+// verify webhook URL with Facebook
+const verify = (req, res) => {
+  if (req.query['hub.mode'] === 'subscribe' &&
+    req.query['hub.verify_token'] === verifyToken) {
+    console.log('Validating webhook')
+    res.status(200).send(req.query['hub.challenge'])
+  } else {
+    res.sendStatus(403)
+  }
+}
 
 const callSendAPI = (messageData) => {
   request({
@@ -60,33 +71,36 @@ const handleEvent = (func, event) => {
     .catch((error) => console.error(error))
 }
 
+const handlePOST = (func, req, res) => {
+  const { body } = req
+  const { object, entry } = body
+  if (object === 'page') {
+    // fb might batch entries and send multiple
+    for (let subentry of entry) {
+      const { id, time, messaging } = subentry
+      console.log(`New Event: ${id} at ${time}`)
+      for (let event of messaging) {
+        // async function
+        handleEvent(func, event)
+      }
+    }
+  }
+
+  // must respons with 200 or FB will resend request
+  res.sendStatus(200)
+}
+
 const decorator = (func) => {
   const decorated = (req, res) => {
-    const handlePOST = (req, res) => {
-      const { body } = req
-      const { object, entry } = body
-      if (object === 'page') {
-        // fb might batch entries and send multiple
-        for (let subentry of entry) {
-          const { id, time, messaging } = subentry
-          console.log(`New Event: ${id} at ${time}`)
-          for (let event of messaging) {
-            // async function
-            handleEvent(func, event)
-          }
-        }
-      }
-
-      // must respons with 200 or FB will resend request
-      res.sendStatus(200)
-    }
-
     switch (req.method) {
       case 'POST':
-        handlePOST(req, res)
+        handlePOST(func, req, res)
+        break
+      case 'GET':
+        verify(req, res)
         break
       default:
-        res.status(500).send({ error: 'Only POST allowed' })
+        res.status(500).send({ error: 'Bad Request' })
         break
     }
   }

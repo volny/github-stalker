@@ -1,9 +1,6 @@
-const { verify } = require('./messenger/bots/verify')
 const { getAvatar } = require('./github/fetch')
 const { echo, avatar, stalker } = require('./messenger/messenger')
 
-// HTTP Function: verify webhook callback URL with Facebook
-exports.verify = verify
 // HTTP Function: calls Github API and sends user profile information
 exports.getAvatar = getAvatar
 // Bot: echos messages
