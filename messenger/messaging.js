@@ -1,5 +1,6 @@
 const request = require('request-promise-native')
 
+// returns a promise
 const getGithubData = (username) => {
   const URI = `https://us-central1-gh-trending-chatbot.cloudfunctions.net/getAvatar?username=${username}`
   return request({
@@ -37,12 +38,13 @@ const couldBeUsername = (text) => {
   return trimmed.search((re)) === 0
 }
 
+// returns a promise
 const showAvatar = ({ message }) => {
   if (message.text) {
     if (couldBeUsername(message.text)) {
       const username = message.text
       console.log('getting github data for', username)
-      getGithubData(username)
+      return getGithubData(username)
         .then((data) => {
           console.log('got github data')
           if (Object.keys(data).length > 0) {

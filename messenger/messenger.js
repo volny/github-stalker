@@ -42,13 +42,19 @@ const handleEvent = (func, event) => {
     console.log(JSON.stringify(message))
   } else {
     console.log('Webhook received unknown event:', event)
-    // in case of unknown event we're aborting early
+    // aborting early
     return
   }
 
   // actual bot code goes here ...
-  const responseMessage = func.call(this, event)
-  sendMessage(sender.id, responseMessage)
+  const promise = func.call(this, event)
+
+  Promise.resolve(promise)
+    .then((message) => {
+      console.log(`Sending Message to ${sender.id}:`, message)
+      sendMessage(sender.id, message)
+    })
+    .catch((error) => console.error(error))
 }
 
 const decorator = (func) => {
@@ -58,13 +64,14 @@ const decorator = (func) => {
       const { object, entry } = body
       if (object === 'page') {
         // fb might batch entries and send multiple
-        entry.forEach((subentry) => {
+        for (let subentry of entry) {
           const { id, time, messaging } = subentry
           console.log(`New Event: ${id} at ${time}`)
-          messaging.forEach((event) => {
+          for (let event of messaging) {
+            // async function
             handleEvent(func, event)
-          })
-        })
+          }
+        }
       }
 
       // must respons with 200 or FB will resend request
