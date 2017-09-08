@@ -1,6 +1,9 @@
 const request = require('request-promise-native')
-const { pageAccessToken, verifyToken } = require('../secrets')
-const { echo } = require('./messaging')
+
+const { pageAccessToken } = require('../secrets')
+const { echo } = require('./bots/echoBot')
+const { avatar } = require('./bots/avatarBot')
+const { stalker } = require('./bots/stalkerBot')
 
 const callSendAPI = (messageData) => {
   request({
@@ -90,13 +93,6 @@ const decorator = (func) => {
   return decorated
 }
 
-const verify = ({ query }, { send }) => {
-  if (query['hub.verify_token'] === verifyToken) {
-    send(query['hub.challenge'])
-  } else {
-    send('Error, wrong validation token')
-  }
-}
-
 exports.echo = decorator(echo)
-exports.verify = verify
+exports.avatar = decorator(avatar)
+exports.stalker = decorator(stalker)

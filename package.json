@@ -4,9 +4,11 @@
   "description": "- change verify token before production",
   "main": "index.js",
   "scripts": {
-    "deploy:echo": "gcloud beta functions deploy echo --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http",
     "deploy:verify": "gcloud beta functions deploy verify --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http",
-    "deploy:getAvatar": "gcloud beta functions deploy getAvatar --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http"
+    "deploy:getAvatar": "gcloud beta functions deploy getAvatar --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http",
+    "deploy:echo": "gcloud beta functions deploy echo --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http",
+    "deploy:avatar": "gcloud beta functions deploy avatar --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http",
+    "deploy:stalker": "gcloud beta functions deploy stalker --project gh-trending-chatbot --stage-bucket gh-trending-chatbot-bucket --trigger-http"
   },
   "repository": {
     "type": "git",
